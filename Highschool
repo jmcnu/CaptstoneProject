@@ -1,0 +1,95 @@
+public class Highschool extends member {
+    private String Clubname;
+    private String School;
+    private String AdviserName;
+    private String AdviserContact;
+    private String PresidentName;
+    private String PresidentContact;
+    private String firstname;
+    private String lastname;
+    private int grade;
+
+    public Highschool () {
+
+    }
+
+    public Highschool(String Clubname, String School, String AdviserName, String AdviserContact, String PresidentName, String PresidentContact,String firstname, String lastname, int grade) {
+        this.Clubname = Clubname;
+        this.School =School;
+        this.AdviserName = AdviserName;
+        this.AdviserContact = AdviserContact;
+        this.PresidentName = PresidentName;
+        this.PresidentContact = PresidentContact;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.grade = grade;
+    }
+
+    public String getClubname() {
+        return Clubname;
+    }
+
+    public void setClubname(String Clubname) {
+        this.Clubname = Clubname;
+    }
+
+    public String getSchool() {
+        return School;
+    }
+    public void setSchool(String School) {
+        this.School = School;
+    }
+
+    public String getAdviserName() {
+        return AdviserName;
+    }
+
+    public void setAdviserName(String AdviserName) {
+        this.AdviserName = AdviserName;
+    }
+
+    public String getAdviserContact() {
+        return AdviserContact;
+    }
+
+    public void setAdviserContact(String AdviserContact) {
+        this.AdviserContact = AdviserContact;
+    }
+
+    public String getPresidentName() {
+        return PresidentName;
+    }
+
+    public void setPresidentName(String PresidentName) {
+        this.PresidentName = PresidentName;
+    }
+
+    public String getPresidentContact() {
+        return PresidentContact;
+    }
+
+    public void setPresidentContact(String PresidentContact) {
+        this.PresidentContact = PresidentContact;
+    }
+    public String getfirstname() {
+        return firstname;
+    }
+    public void setfirstname(String firstname) {
+        this.firstname = firstname;
+    }
+    public String getlastname() {
+        return lastname;
+    }
+    public void setlastname(String lastname) {
+        this.lastname = lastname;
+    }
+    public int getgrade() {
+        return grade;
+    }
+    public void setyear(int grade) {
+        this.grade = grade;
+    }
+    public String toString() {
+        return "First name:" + firstname + "\tLast name:" + lastname + "\tGrade:" + grade ;
+    }
+}
