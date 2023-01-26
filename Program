@@ -1,0 +1,472 @@
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.layout.*;
+import javafx.geometry.Pos;
+import javafx.scene.text.Text;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import java.sql.*;
+import javafx.scene.control.Label;
+
+public class Program extends Application {
+
+    // MySQL information
+
+    static String databasename ="capstone_database";
+    static String url = "jdbc:mysql://localhost:3306/capstone_database";
+
+    static String username ="root";
+    static String password = "Fchj78@Sbn";
+    public static Statement dbStatement;
+
+    //text for the program
+
+    protected Text text1 = new Text(50,50, "Look up information or add information?");
+    protected Text text2 = new Text (50,50, "Is this chapter high school or College?");
+    protected Text text3 = new Text (50,50, "Enter in just member information or Leaders and Members information");
+
+    // Administration method information
+
+    private TextField tfClubName = new TextField();
+    private TextField tfSchoolName = new TextField();
+    private TextField tfAdviserName = new TextField();
+    private TextField tfAdviserContact = new TextField();
+    private TextField tfPresidentName = new TextField();
+    private TextField tfPresidentContact = new TextField();
+
+    private Label lblClubName = new Label("Name of Organization");
+    private Label lblSchoolName = new Label("Name of School");
+    private Label lblAdviserName = new Label("Name of Advisor");
+    private Label lblAdviserContact = new Label("Email for Advisor");
+    private Label lblPresidentName = new Label("Name of President");
+    private Label lblPresidentContact = new Label("Email for President");
+
+    Button btSaveInfoNext = new Button ("Next");
+
+    //Member information for High school and College
+
+    private TextField tfFirstName = new TextField();
+    private TextField tfLastName = new TextField();
+    private TextField tfYear = new TextField();
+    private Label lblFirstName = new Label("First Name");
+    private Label lblLastName = new Label("Last Name");
+    private Label lblYear = new Label("Year");
+
+    Button btSaveUserInfo = new Button("Save");
+
+    //number of members
+    private Label lblMembers = new Label("How many members?");
+    private TextField tfMembers = new TextField();
+
+    Button btmemberInfo= new Button("Member");
+    Button btLeaderMemberInfo= new Button("Member and Leader");
+
+    //look up information from the databases
+
+    private TextField tfSchoolName1 = new TextField();
+    private TextField tfOrganizationName = new TextField();
+    private Label lblSchoolName1 = new Label("Enter in Name of School");
+    private Label lblOrganizationName = new Label("Enter in Name of Organization");
+
+    Button btLookupInfo = new Button("Search");
+
+
+    Stage primaryStage = new Stage();
+    public BorderPane pane = new BorderPane();
+
+
+    @Override
+    public void start(Stage primaryStage) {
+
+        //Scene1
+
+        HBox layout1 = new HBox();
+        Button button1= new Button("Look up Information");
+        Button button2= new Button("Enter Information");
+        button1.setOnAction(e -> AccessInfo());
+        layout1.getChildren().addAll(button1, button2);
+        layout1.setAlignment(Pos.CENTER);
+
+        HBox hBoxText1 = new HBox();
+        Pane paneForText1 = new Pane();
+        paneForText1.getChildren().add(text1);
+        hBoxText1.getChildren().add(paneForText1);
+        //		hBoxText1.setMinHeight(30);
+        //		hBoxText1.setPrefWidth(20);
+
+
+        pane.setTop(hBoxText1);
+        pane.setCenter(layout1);
+
+        Scene scene= new Scene(pane,600,550);
+
+
+        //main stage
+
+        primaryStage.setTitle("Student Orangization");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+
+        //Scene2
+
+        button2.setOnAction(e ->{
+            HBox paneForButtons = new HBox(20);
+            Button bthighschool = new Button("High School");
+            Button btcollege= new Button("College");
+            bthighschool.setOnAction( o -> {
+                highSchool();
+            });
+            btcollege.setOnAction(o ->{
+                college();
+            });
+            paneForButtons.getChildren().addAll(bthighschool, btcollege);
+            paneForButtons.setAlignment(Pos.CENTER);
+
+
+            HBox hBoxText = new HBox();
+            Pane paneForText = new Pane();
+            paneForText.getChildren().add(text2);
+            hBoxText.getChildren().add(paneForText);
+            //			hBoxText.setMinHeight(30);
+            //			hBoxText.setPrefWidth(20);
+
+
+            pane.setTop(hBoxText);
+            pane.setCenter(paneForButtons);
+        });
+
+
+
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    // method to collect information about the members in the high school clubs and the advisers
+
+    public void highSchool() {
+
+        Highschool Highschool = new Highschool();
+        Highschool[] array = new Highschool [100];
+
+        memberInfo();
+
+        btmemberInfo.setOnAction(e -> {
+            displayUserInfo();
+
+
+            btSaveUserInfo.setOnAction(o -> {
+                try {
+                    highschoolAccess();
+                    for (int i = 0; i < Integer.parseInt(tfMembers.getText()); i++) {
+                        array[i].setfirstname(tfFirstName.getText());
+                        array[i].setlastname(tfLastName.getText());
+                        array[i].setgrade(Integer.parseInt(tfYear.getText()));
+                    }
+                }catch (NumberFormatException ex){
+                    System.out.println(ex.toString());
+                }
+            });
+        });
+
+        btLeaderMemberInfo.setOnAction(e -> {
+
+            AdministrationInfo();
+
+
+            btSaveInfoNext.setOnAction(o -> {
+                Highschool.setClubname(tfClubName.getText());
+                Highschool.setSchool(tfSchoolName.getText());
+                Highschool.setAdviserName(tfAdviserName.getText());
+                Highschool.setAdviserContact(tfAdviserContact.getText());
+                Highschool.setPresidentName(tfPresidentName.getText());
+                Highschool.setPresidentContact(tfPresidentContact.getText());
+
+
+                displayUserInfo();
+            });
+
+            btSaveUserInfo.setOnAction(o -> {
+                try {
+                    highschoolAccess();
+                    for (int i = 0; i < Integer.parseInt(tfMembers.getText()); i++) {
+                        array[i].setfirstname(tfFirstName.getText());
+                        array[i].setlastname(tfLastName.getText());
+                        array[i].setgrade(Integer.parseInt(tfYear.getText()));
+
+                    }
+                }catch (NumberFormatException ex){
+                    System.out.println(ex.toString());
+                }
+            });
+        });
+    }
+
+    // method to collect information for college members and the leader contact information for the colllege chapters
+
+    public void college() {
+
+        College College = new College();
+        College[] array = new College [100];
+
+        memberInfo();
+
+        btmemberInfo.setOnAction(e -> {
+            displayUserInfo();
+
+            btSaveUserInfo.setOnAction(o -> {
+                try {
+                   // collegeAcess();
+                    for (int i = 0; i < Integer.parseInt(tfMembers.getText()); i++) {
+                        array[i].setfirstname(tfFirstName.getText());
+                        array[i].setlastname(tfLastName.getText());
+                        array[i].setyear(tfYear.getText());
+                    }
+                }catch (NumberFormatException ex){
+                    System.out.println(ex.toString());
+                }
+            });
+        });
+
+        btLeaderMemberInfo.setOnAction(e -> {
+            AdministrationInfo();
+
+            btSaveInfoNext.setOnAction(o -> {
+                College.setClubname(tfClubName.getText());
+                College.setSchool(tfSchoolName.getText());
+                College.setAdviserName(tfAdviserName.getText());
+                College.setAdviserContact(tfAdviserContact.getText());
+                College.setPresidentName(tfPresidentName.getText());
+                College.setPresidentContact(tfPresidentContact.getText());
+
+                displayUserInfo();
+            });
+
+            btSaveUserInfo.setOnAction(o -> {
+                try {
+                    collegeAccess();
+                    for (int i = 0; i < Integer.parseInt(tfMembers.getText()); i++) {
+                        array[i].setfirstname(tfFirstName.getText());
+                        array[i].setlastname(tfLastName.getText());
+                        array[i].setyear(tfYear.getText());
+                    }
+                }
+                catch (NumberFormatException ex){
+                    System.out.println(ex.toString());
+                }
+            });
+        });
+    }
+
+    //method to collect administration information for the club
+
+    public void AdministrationInfo() {
+        GridPane gridPane = new GridPane();
+        gridPane.add(lblClubName, 0,0);
+        gridPane.add(lblSchoolName, 0,1);
+        gridPane.add(lblAdviserName, 0,2);
+        gridPane.add(lblAdviserContact, 0,3);
+        gridPane.add(lblPresidentName, 0,4);
+        gridPane.add(lblPresidentContact, 0,5);
+
+        gridPane.add(tfClubName, 1, 0);
+        gridPane.add(tfSchoolName, 1, 1);
+        gridPane.add(tfAdviserName, 1, 2);
+        gridPane.add(tfAdviserContact, 1, 3);
+        gridPane.add(tfPresidentName, 1, 4);
+        gridPane.add(tfPresidentContact, 1, 5);
+        gridPane.add(btSaveInfoNext, 1, 7);
+
+        gridPane.setVgap(20);
+        gridPane.setHgap(30);
+
+        tfClubName.setAlignment(Pos.CENTER_RIGHT);
+        tfSchoolName.setAlignment(Pos.CENTER_RIGHT);
+        tfAdviserName.setAlignment(Pos.CENTER_RIGHT);
+        tfAdviserContact.setAlignment(Pos.CENTER_RIGHT);
+        tfPresidentName.setAlignment(Pos.CENTER_RIGHT);
+        tfPresidentContact.setAlignment(Pos.CENTER_RIGHT);
+        pane.getChildren().clear();
+        pane.setCenter(gridPane);
+
+    }
+
+    //method to display and gather members information
+
+    public void displayUserInfo() {
+        GridPane gridPane = new GridPane();
+        gridPane.add(lblFirstName, 0, 0);
+        gridPane.add(lblLastName, 0, 1);
+        gridPane.add(lblYear, 0, 2);
+        gridPane.add(tfFirstName, 1, 0);
+        gridPane.add(tfLastName, 1, 1);
+        gridPane.add(tfYear, 1, 2);
+        gridPane.add(btSaveUserInfo, 1, 5);
+
+        gridPane.setVgap(20);
+        gridPane.setHgap(30);
+
+        tfFirstName.setAlignment(Pos.CENTER_RIGHT);
+        tfLastName.setAlignment(Pos.CENTER_RIGHT);
+        tfYear.setAlignment(Pos.CENTER_RIGHT);
+        pane.getChildren().clear();
+        pane.setCenter(gridPane);
+
+    }
+
+    // method to gather member information and pick between leaders and members information or just members
+
+    public void memberInfo() {
+        HBox layout2 = new HBox(20);
+        layout2.getChildren().addAll(btmemberInfo, btLeaderMemberInfo);
+        layout2.setMinHeight(30);
+        layout2.setPrefWidth(20);
+        layout2.setAlignment(Pos.CENTER);
+
+        HBox hBoxText1 = new HBox();
+        Pane paneForText1 = new Pane();
+        paneForText1.getChildren().add(text3);
+        hBoxText1.getChildren().add(paneForText1);
+        hBoxText1.setMinHeight(30);
+        hBoxText1.setPrefWidth(20);
+        hBoxText1.setAlignment(Pos.CENTER);
+
+        HBox hBoxMembers = new HBox();
+        hBoxMembers.getChildren().addAll(lblMembers,tfMembers);
+        hBoxMembers.setMinHeight(30);
+        hBoxMembers.setPrefWidth(20);
+        tfMembers.setAlignment(Pos.CENTER_RIGHT);
+
+        pane.setTop(hBoxText1);
+        pane.setCenter(hBoxMembers);
+        pane.setBottom(layout2);
+
+    }
+
+    //method to look up information
+
+    public void lookupInfo() {
+        GridPane gridPane = new GridPane();
+        gridPane.add(lblSchoolName1, 0, 0);
+        gridPane.add(lblOrganizationName, 0, 1);
+        gridPane.add(tfSchoolName1, 1, 0);
+        gridPane.add(tfOrganizationName, 1, 1);
+        gridPane.add(btLookupInfo, 1, 3);
+
+        gridPane.setVgap(20);
+        gridPane.setHgap(30);
+
+        tfSchoolName.setAlignment(Pos.CENTER_RIGHT);
+        tfOrganizationName.setAlignment(Pos.CENTER_RIGHT);
+        pane.setCenter(gridPane);
+
+    }
+
+    //method that access information from the database based on what is entered in
+
+    public void AccessInfo() {
+        lookupInfo();
+
+        btLookupInfo.setOnAction( e -> {
+            lookupAccess();
+        });
+    }
+
+    //method to connect to database from the highschool chapters
+
+    public void highschoolAccess() {
+        try(Connection connection = DriverManager.getConnection(url, username, password)){
+            dbStatement = connection.createStatement();
+            dbStatement.executeUpdate("INSERT INTO highschool(Highschool_Name, Student_First_Name, Student_Last_Name, Student_Year, Club_Name)VALUES (''"+tfSchoolName+"','"+tfFirstName+"','"+tfLastName+"', '"+tfYear+"','"+tfClubName+"')");
+
+            connection.close();
+
+        }catch (SQLException t) {
+            System.out.print(t);
+        }
+        try(Connection connection = DriverManager.getConnection(url, username, password)){
+            PreparedStatement ps = connection.prepareStatement("SELECT highschool.Highschool_ID, highschool.Highschool_Name, highschool.Student_First_Name, highschool.Student_Last_Name, highschool.Student_Year From highschool");
+            dbStatement = connection.createStatement();
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next() == false) {
+                System.out.println("No records found");
+            }else {
+                do {
+                    System.out.println("Student: " + rs.getString(2) + " " + rs.getString(3) + " Id: " + rs.getInt(1));
+                }while(rs.next());
+            }
+            connection.close();
+
+        }catch (SQLException t) {
+            System.out.print(t);
+        }
+
+
+    }
+
+    //method to access the college database and add member and leader information
+    public void collegeAccess() {
+        try(Connection connection = DriverManager.getConnection(url, username, password)){
+            dbStatement = connection.createStatement();
+            dbStatement.executeUpdate("INSERT INTO college(College_Name, Student_First_Name, Student_Last_Name, Student_Year, Club_Name)VALUES ('"+tfSchoolName+"','"+tfFirstName+"', '"+tfLastName+"', '"+tfYear+"'"+tfClubName+"')");
+            connection.close();
+
+        }catch (SQLException t) {
+            System.out.print(t);
+        }
+        try(Connection connection = DriverManager.getConnection(url, username, password)){
+            PreparedStatement ps = connection.prepareStatement("SELECT college.College_ID, college.College_Name, college.Student_First_Name, college.Student_Last_Name, college.Student_Year From college");
+            dbStatement = connection.createStatement();
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next() == false) {
+                System.out.println("No records found");
+            }else {
+                do {
+                    System.out.println("Student: " + rs.getString(2) + " " + rs.getString(3) + " Id: " + rs.getInt(1));
+                }while(rs.next());
+            }
+            connection.close();
+
+        }catch (SQLException t) {
+            System.out.print(t);
+        }
+
+
+    }
+
+    public void lookupAccess() {
+        try(Connection connection = DriverManager.getConnection(url, username, password)){
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO college(College_Name, Student_First_Name, Student_Last_Name, Student_Year)VALUES ('', '', '', '')");
+            dbStatement = connection.createStatement();
+            dbStatement.executeUpdate("INSERT INTO college(College_Name, Student_First_Name, Student_Last_Name, Student_Year)VALUES ('','', '', '')");
+            connection.close();
+
+        }catch (SQLException t) {
+            System.out.print(t);
+        }
+        try(Connection connection = DriverManager.getConnection(url, username, password)){
+            PreparedStatement ps = connection.prepareStatement("SELECT college.College_ID, college.College_Name, college.Student_First_Name, college.Student_Last_Name, college.Student_Year From college");
+            dbStatement = connection.createStatement();
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next() == false) {
+                System.out.println("No records found");
+            }else {
+                do {
+                    System.out.println("Student: " + rs.getString(2) + " " + rs.getString(3) + " Id: " + rs.getInt(1));
+                }while(rs.next());
+            }
+            connection.close();
+
+        }catch (SQLException t) {
+            System.out.print(t);
+        }
+
+
+    }
+}
